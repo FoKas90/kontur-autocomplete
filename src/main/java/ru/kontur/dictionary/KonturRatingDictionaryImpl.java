@@ -1,32 +1,28 @@
 package ru.kontur.dictionary;
 
-import java.util.ArrayList;
-import java.util.Comparator;
+import ru.kontur.util.Result;
+
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
-import static java.util.stream.Collectors.toList;
+import static ru.kontur.util.Result.fail;
+import static ru.kontur.util.Result.ok;
 
 class KonturRatingDictionaryImpl implements KonturRatingDictionary {
 
     private static final int DICTIONARY_MAX_SIZE = 100_000;
     private final TreeNode root = new TreeNode(Character.MIN_VALUE);
-    private final List<KonturDictionaryWord> allWords = new ArrayList<>(DICTIONARY_MAX_SIZE + (int) (DICTIONARY_MAX_SIZE * 0.16));
-    private final int maxBest = 10;
-    private int currentIndex = 0;
-    private Comparator<KonturDictionaryWord> ratingComparator = (w1, w2) ->
-            Integer.compare(w1.rating, w2.rating);
-    private Comparator<KonturDictionaryWord> alphaComparator = (w1, w2) ->
-            w1.word.compareTo(w2.word);
-    private Comparator<KonturDictionaryWord> konturComparator = ratingComparator.reversed().thenComparing(alphaComparator);
+    private static final int MAX_BEST = 10;
+    private int currentSize = 0;
 
     KonturRatingDictionaryImpl() {
 
     }
 
-    @Override
-    public void addWord(KonturDictionaryWord word) {
-        allWords.add(currentIndex, word);
+    Result addWord(KonturDictionaryWord word) {
+        if(currentSize == DICTIONARY_MAX_SIZE) return fail("Dictionary is fill");
         TreeNode node = root;
         for (int i = 0; i < word.word.length(); i++) {
             char aLetter = word.word.charAt(i);
@@ -34,22 +30,15 @@ class KonturRatingDictionaryImpl implements KonturRatingDictionary {
             if (node.getChildren()[index] == null) {
                 TreeNode treeNode = new TreeNode(aLetter);
                 node.getChildren()[index] = treeNode;
-                treeNode.getWordIndexes().add(currentIndex);
                 node = treeNode;
             } else {
                 node = node.getChildren()[index];
-                List<KonturDictionaryWord> currentPopular = node.getWordIndexes().stream().map(allWords::get).collect(toList());
-                currentPopular.add(word);
-                List<Integer> newIndexes = currentPopular.stream().sorted(konturComparator).
-                        limit(maxBest).
-                        map(allWords::indexOf).
-                        collect(toList());
-                node.getWordIndexes().clear();
-                node.getWordIndexes().addAll(newIndexes);
             }
+            node.addRatingWord(word.word, word.rating);
         }
-        currentIndex++;
         node.setEnd(true);
+        currentSize++;
+        return ok();
     }
 
     @Override
@@ -63,6 +52,18 @@ class KonturRatingDictionaryImpl implements KonturRatingDictionary {
             current = letterNode.get();
         }
         if (current == root) return new String[0];
-        return current.getWordIndexes().stream().map(in -> allWords.get(in).word).toArray(String[]::new);
+        List<Set<String>> words = current.getRatingWords();
+        int bests = 0;
+        Iterator<Set<String>> iterator = words.iterator();
+        String[] result = new String[MAX_BEST];
+        while (bests != MAX_BEST && iterator.hasNext()) {
+            Set<String> aLetterWords = iterator.next();
+            Iterator<String> aLetterWordIterator = aLetterWords.iterator();
+            while (bests != MAX_BEST && aLetterWordIterator.hasNext()) {
+                result[bests] = aLetterWordIterator.next();
+                bests++;
+            }
+        }
+        return result;
     }
 }

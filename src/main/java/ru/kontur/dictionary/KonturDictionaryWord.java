@@ -1,10 +1,11 @@
 package ru.kontur.dictionary;
 
 import ru.kontur.util.RestrictSizeInt;
-import ru.kontur.util.Result;
+import ru.kontur.util.ValueResult;
 
-import static ru.kontur.util.Result.fail;
-import static ru.kontur.util.Result.ok;
+import static ru.kontur.util.ValueResult.fail;
+import static ru.kontur.util.ValueResult.ok;
+
 
 class KonturDictionaryWord {
 
@@ -17,18 +18,18 @@ class KonturDictionaryWord {
         this.rating = rating;
     }
 
-    static Result<KonturDictionaryWord> create(String word, int ratingInt) {
+    static ValueResult<KonturDictionaryWord> create(String word, int ratingInt) {
         if (word.isEmpty() || word.length() > 15)
             return fail(String.format("Word is empty or large (%s)", word));
-        Result<RestrictSizeInt> sizeIntResult = RatingSize.from(ratingInt);
+        ValueResult<RestrictSizeInt> sizeIntResult = RatingSize.from(ratingInt);
         if (sizeIntResult.isSuccess()) {
-            return ok(new KonturDictionaryWord(word, ratingInt));
+            return ok(new KonturDictionaryWord(word.intern(), ratingInt));
         } else {
             return fail(String.format("Word rating is large or small (%d)", ratingInt));
         }
     }
 
-    static Result<KonturDictionaryWord> parse(String s) {
+    static ValueResult<KonturDictionaryWord> parse(String s) {
         String[] wordUnits = s.split(" ");
         if (wordUnits.length != 2)
             return fail("Wrong dictionary word representation");

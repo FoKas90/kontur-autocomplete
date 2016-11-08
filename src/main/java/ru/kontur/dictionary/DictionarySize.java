@@ -1,7 +1,7 @@
 package ru.kontur.dictionary;
 
 import ru.kontur.util.RestrictSizeInt;
-import ru.kontur.util.Result;
+import ru.kontur.util.ValueResult;
 
 class DictionarySize {
     final int size;
@@ -11,7 +11,7 @@ class DictionarySize {
         this.size = size;
     }
 
-    static Result<RestrictSizeInt> parse(String sizeStr) {
+    static ValueResult<RestrictSizeInt> parse(String sizeStr) {
         return RestrictSizeInt.parse(sizeStr, size -> !(size < 1 || size > 100_000));
     }
 }

@@ -1,9 +1,10 @@
 package ru.kontur.autocomplete;
 
 import ru.kontur.dictionary.KonturRatingDictionary;
-import ru.kontur.util.Result;
+import ru.kontur.util.ValueResult;
 
-import static ru.kontur.util.Result.fail;
+import static ru.kontur.util.ValueResult.fail;
+import static ru.kontur.util.ValueResult.ok;
 
 class KonturAutocompleteImpl implements KonturAutocomplete {
     private KonturRatingDictionary dictionary;
@@ -13,13 +14,13 @@ class KonturAutocompleteImpl implements KonturAutocomplete {
     }
 
     @Override
-    public Result<String[]> getBests(String start) {
+    public ValueResult<String[]> getBests(String start) {
         String[] strings;
         try {
             strings = dictionary.search(start);
         } catch (Exception e) {
             return fail(e.getMessage());
         }
-        return Result.ok(strings);
+        return ok(strings);
     }
 }

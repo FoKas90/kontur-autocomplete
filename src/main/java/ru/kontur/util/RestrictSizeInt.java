@@ -3,8 +3,8 @@ package ru.kontur.util;
 import java.util.function.Predicate;
 
 import static java.lang.Integer.parseInt;
-import static ru.kontur.util.Result.fail;
-import static ru.kontur.util.Result.ok;
+import static ru.kontur.util.ValueResult.fail;
+import static ru.kontur.util.ValueResult.ok;
 
 public class RestrictSizeInt {
 
@@ -15,7 +15,7 @@ public class RestrictSizeInt {
         this.size = size;
     }
 
-    public static Result<RestrictSizeInt> parse(String sizeStr, Predicate<Integer> restrictionCheck) {
+    public static ValueResult<RestrictSizeInt> parse(String sizeStr, Predicate<Integer> restrictionCheck) {
         try {
             int size = parseInt(sizeStr);
             return from(size, restrictionCheck);
@@ -24,7 +24,7 @@ public class RestrictSizeInt {
         }
     }
 
-    public static Result<RestrictSizeInt> from(int candidate, Predicate<Integer> restrictionCheck) {
+    public static ValueResult<RestrictSizeInt> from(int candidate, Predicate<Integer> restrictionCheck) {
         if (restrictionCheck.test(candidate)) {
             return ok(new RestrictSizeInt(candidate));
         } else {
