@@ -10,7 +10,17 @@ import java.io.IOException;
 import static ru.kontur.util.ValueResult.fail;
 import static ru.kontur.util.ValueResult.ok;
 
+/**
+ * Интерфейс словаря
+ */
 public interface KonturRatingDictionary {
+
+    /**
+     * Созддает словарь {@link KonturRatingDictionary}, обернутый в {@link ValueResult}
+     * @param reader Символьный поток словаря
+     * @return Результат ввполнения операции. Успешность операции нужно проверять через {@link ValueResult#isSuccess()}
+     * Если словарь создан успешно, то его можно получить через {@link ValueResult#getValue()}
+     */
     static ValueResult<KonturRatingDictionary> from(BufferedReader reader) {
         try {
             String line = reader.readLine();
@@ -38,5 +48,12 @@ public interface KonturRatingDictionary {
             return fail(e.getMessage());
         }
     }
-    String[] search(String what);
+
+    /**
+     * Ищет 10 популярных слов, начинающихся с {@code prefix}
+     * @param prefix Начальная часть для искомых слов
+     * @return 10 популярных слов. ПУстой массив возвращается, если {@code prefix} равна null и пуста,
+     * в словаре ничего не найдено, словарь пуст
+     */
+    String[] search(String prefix);
 }

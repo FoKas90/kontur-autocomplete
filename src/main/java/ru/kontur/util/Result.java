@@ -1,6 +1,7 @@
 package ru.kontur.util;
 
 public interface Result {
+
     String getErrorMessage();
 
     boolean isSuccess();
